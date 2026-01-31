@@ -1,30 +1,49 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 
-/** --------- Types --------- */
-type Severity = "Critical" | "High" | "Medium" | "Low" | "Info";
-type FindingStatus = "Open" | "Fixed" | "Accepted Risk" | "Unknown";
-type Finding = {
-    id: number;
-    name: string;
+/** 
+ *NavBar()
+ * - A small header at the top of the page.
+ * - In a real app, this could include navigation links (Home, Findings, About, etc.)
+ */
+function NavBar() {
+    return (
+        <header style={styles.navbar}>
+            {/* LEFT SIDE: SITE TITLE */}
+            <div>
+              <div style={styles.navTitle}>finding.maltek</div>
+              <div style={styles.navSubtitle}>Maltek Findings Archive</div>
+            </div>
 
+            {/* RIGHT SIDE: CONTACT INFO */}
+            <div>
+              <a style={styles.navLink}
+        href="mailto:belizaire@malteksolutions.com">
+                belizaire@malteksolutions.com 
+              </a>
+            </div>
+        </header>
+      );
+}
 
-    //optional feilds here. (won't break if backend doesn't have them yet)
-    year?: number;
-    severity?: Severity;
-    category?: string;
-    status?: FindingStatus;
-    summary?: string;
-    impact?: string;
-    recommendation?: string;
-    tags?: string[];
-};
+/**
+ *HomePage()
+ *- This will be the static homepage
+ *- No API calls on it yet
+ *- This is our "foundation" we'll build onto it later (filters, table, detail view, etc.)
+*/
+export default function Homepage() {
+    return (
+        <div style={styles.container}>
+            <NavBar />
 
-const SERVERITIES: Severity[] = ["Critical", "High", "Medium", "Low", "Info"];
-const STATUS: FindingStatus[] = ["Open", "Fixed", "Accepted Risk", "Unknown"];
+            {/* Main content card */}
+            <main style={styles.card}>
+               <h1 style={styles.h1}>Maltek Findings Homepage</h1>
+               <p style={styles.p}>
+                   This site will store and display security findngs of Maltek Solutions across multiple years. 
+                   The goal is to provide a clean way to browse findings by year, severity, and category. </p>
 
-/** --------- Styling helpers --------- */ 
-const styles: Record<string, React.CSSProperties> = { page: { minHeight:"100vh", background: "#0b1220", color: "#e5e7eb", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial" },
-                                                     container: { macWidth: 1100, margin: "0 auto", padding: "24px, 16px" },
-                                                     nav: { display: "flex", alignItems: "center", justifyContent: "spacce-between", gap: 12, padding: "14px 16px", border: "1px solid #1f2937", borderRadius: 16, background: "rgba(15, 23, 42, 0.7)" },
-                                                     brand:
-                                                     
+                {/* "What's coming next" section */}
+                <section style={styles.section}>
+                    <h2 style={styles.h2}>What this site will include</h2>
+                    
