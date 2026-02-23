@@ -132,7 +132,7 @@ export default function Homepage() {
           {/* Background image (subtle) */}
           <div style={styles.heroBgWrap}>
             <img
-              src="/maltek.jpeg"
+              src="findings/maltek.jpeg"
               alt="Maltek hero background"
               style={styles.heroBg}
             />
