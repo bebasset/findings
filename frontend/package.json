@@ -32,7 +32,7 @@
     "vite": "^8.0.0-beta.13"
   },
 {
-  "homepage": "https://bebasset.github.io/findings",
+  "homepage": "http://bebasset.github.io/findings",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
