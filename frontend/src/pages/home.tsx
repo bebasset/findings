@@ -156,7 +156,7 @@ export default function Homepage() {
 
             {/* Right side brand image */}
             <img
-              src="/maltek.1.jpeg"
+              src="findings/maltek.1.jpeg"
               alt="Maltek Solutions wordmark"
               style={styles.heroBrand}
             />
