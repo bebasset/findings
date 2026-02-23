@@ -1,59 +1,78 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 
-/**
- * A simple type so our table rows are readable and consistent.
- */
+type Severity = "Critical" | "High" | "Medium" | "Low" | "Info";
+type Status = "Open" | "Fixed" | "Accepted Risk";
 
-/** Here we're defining our "finding row" with pentester, findings, and date as strings. 
-    And Severity and status as prefixed strings of titles to define them 
-    */
 type FindingRow = {
+  id: number;
   pentester: string;
   finding: string;
-  date: string; // keeping this as "YYYY-MM-DD" for sorting later
-  severity: "Critical" | "High" | "Medium" | "Low" | "Info";
-  status: "Open" | "Fixed" | "Accepted Risk";
+  date: string; // YYYY-MM-DD
+  severity: Severity;
+  status: Status;
+
+  // “details” fields (still static for now)
+  summary: string;
+  impact: string;
+  recommendation: string;
+  references?: string[];
 };
 
-/**
- * Static preview rows (replace we can replace with real data later or load from an API)
- */
 const FINDINGS: FindingRow[] = [
   {
+    id: 1,
     pentester: "Belizaire Bassette II",
     finding: "Missing Security Headers (CSP / HSTS / X-Frame-Options)",
     date: "2026-02-18",
     severity: "Low",
     status: "Open",
+    summary: "Response headers are missing common browser protections.",
+    impact: "Increases risk from clickjacking, downgrade issues, and content injection scenarios.",
+    recommendation: "Add CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy.",
+    references: ["OWASP Secure Headers Project", "OWASP ASVS (V14)"],
   },
   {
+    id: 2,
     pentester: "Graham O’Donnell",
     finding: "IDOR: Arbitrary PDF Access via Predictable Identifier",
     date: "2026-02-19",
     severity: "High",
     status: "Open",
+    summary: "Direct object references allow access to documents without proper authorization.",
+    impact: "Exposure of sensitive documents and potential regulatory impact.",
+    recommendation: "Enforce authorization checks server-side for every document request.",
+    references: ["OWASP Broken Access Control"],
   },
   {
+    id: 3,
     pentester: "Mike Lisi",
     finding: "Outdated JavaScript Library (jQuery 1.10.2) with Known CVEs",
     date: "2026-02-20",
     severity: "Medium",
     status: "Fixed",
+    summary: "Client-side dependency is outdated and has known vulnerabilities.",
+    impact: "Potential XSS vectors depending on usage patterns.",
+    recommendation: "Upgrade to a supported version and run dependency scanning in CI.",
+    references: ["CVE-2020-11022", "CVE-2020-11023"],
   },
   {
+    id: 4,
     pentester: "Belizaire Bassette II",
     finding: "Stack Trace Disclosure via Registration Error (Info Leakage)",
     date: "2026-02-03",
     severity: "Medium",
     status: "Open",
+    summary: "Application errors expose stack traces and internal implementation details.",
+    impact: "Helps attackers map code paths, libraries, and data structures.",
+    recommendation: "Return generic error messages; log details server-side only.",
+    references: ["OWASP Error Handling Cheat Sheet"],
   },
 ];
 
-/**
- * Helper: return a small badge style based on severity.
- * (kept simple for learning; later you can move to CSS/Tailwind)
- */
-function getSeverityBadgeStyle(sev: FindingRow["severity"]): React.CSSProperties {
+const SEVERITIES: Severity[] = ["Critical", "High", "Medium", "Low", "Info"];
+
+/** ---------- Small helpers ---------- */
+function severityStyle(sev: Severity): React.CSSProperties {
   switch (sev) {
     case "Critical":
       return { ...styles.badge, background: "#ef4444", borderColor: "#ef4444", color: "#0b1220" };
@@ -69,8 +88,7 @@ function getSeverityBadgeStyle(sev: FindingRow["severity"]): React.CSSProperties
   }
 }
 
-function getStatusBadgeStyle(status: FindingRow["status"]): React.CSSProperties {
-  // Maltek blue/teal accents for our status
+function statusStyle(status: Status): React.CSSProperties {
   switch (status) {
     case "Fixed":
       return { ...styles.badgeOutline, borderColor: styles.colors.accentTeal, color: styles.colors.accentTeal };
@@ -82,54 +100,71 @@ function getStatusBadgeStyle(status: FindingRow["status"]): React.CSSProperties 
   }
 }
 
-/**
- * NavBar()
- * - Top header
- * - Shows logo + site name on the left
- * - Contact on right
- */
 function NavBar() {
   return (
     <header style={styles.navbar}>
-      {/* LEFT: Logo + title */}
       <div style={styles.navLeft}>
-        {/* Logo icon mark */}
+        {/* Logo (served from frontend/public/findings/) */}
         <img
           src="/maltek.2.png"
           alt="Maltek Solutions Logo"
           style={styles.navLogo}
         />
-
         <div>
-          <div style={styles.navTitle}>finding.maltek</div>
+          <div style={styles.navTitle}>findings.maltek</div>
           <div style={styles.navSubtitle}>Maltek Findings Archive</div>
         </div>
-      </div>
-
-      {/* RIGHT: Contact */}
-      <div style={styles.navRight}>
-        <a style={styles.navLink} href="mailto:belizaire@malteksolutions.com">
-          belizaire@malteksolutions.com
-        </a>
       </div>
     </header>
   );
 }
 
-/**
- * Homepage()
- * - Static homepage
- * - Includes a hero banner + table (columns/rows)
- */
 export default function Homepage() {
+  // UI state for filtering/searching
+  const [query, setQuery] = useState("");
+  const [yearFilter, setYearFilter] = useState<number | "All">("All");
+  const [severityFilter, setSeverityFilter] = useState<Severity | "All">("All");
+  const [selected, setSelected] = useState<FindingRow | null>(null);
+
+  const years = useMemo(() => {
+    const ys = Array.from(new Set(FINDINGS.map(f => Number(f.date.slice(0, 4)))));
+    ys.sort((a, b) => b - a);
+    return ys;
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+
+    return FINDINGS.filter((f) => {
+      const year = Number(f.date.slice(0, 4));
+      const matchesYear = yearFilter === "All" ? true : year === yearFilter;
+      const matchesSeverity = severityFilter === "All" ? true : f.severity === severityFilter;
+
+      const matchesQuery =
+        q.length === 0
+          ? true
+          : `${f.pentester} ${f.finding} ${f.severity} ${f.status} ${f.date}`
+              .toLowerCase()
+              .includes(q);
+
+      return matchesYear && matchesSeverity && matchesQuery;
+    });
+  }, [query, yearFilter, severityFilter]);
+
+  // KPIs (counts by severity)
+  const kpis = useMemo(() => {
+    const counts: Record<Severity, number> = { Critical: 0, High: 0, Medium: 0, Low: 0, Info: 0 };
+    for (const f of filtered) counts[f.severity] += 1;
+    return counts;
+  }, [filtered]);
+
   return (
     <div style={styles.page}>
       <div style={styles.container}>
         <NavBar />
 
-        {/* HERO / BANNER */}
+        {/* HERO */}
         <section style={styles.hero}>
-          {/* Background image (subtle) */}
           <div style={styles.heroBgWrap}>
             <img
               src="/maltek.jpeg"
@@ -143,18 +178,22 @@ export default function Homepage() {
             <div>
               <h1 style={styles.h1}>Maltek Findings</h1>
               <p style={styles.p}>
-                A single place to review security findings across the years.
-                Browse by pentester, finding title, and date — then expand later with filters and metrics.
+                A single place to review security findings across the years. Search and filter by
+                pentester, severity, and year.
               </p>
 
-              <div style={styles.heroChips}>
-                <span style={styles.chip}>Blue Team + Red Team Ready</span>
-                <span style={styles.chip}>Year-over-Year Tracking</span>
-                <span style={styles.chip}>Client-Safe Summaries</span>
+              {/* KPI row */}
+              <div style={styles.kpiRow}>
+                {SEVERITIES.map((s) => (
+                  <div key={s} style={styles.kpiCard}>
+                    <div style={styles.kpiLabel}>{s}</div>
+                    <div style={styles.kpiValue}>{kpis[s]}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Right side brand image */}
+            {/* Wordmark */}
             <img
               src="/maltek.1.jpeg"
               alt="Maltek Solutions wordmark"
@@ -163,18 +202,91 @@ export default function Homepage() {
           </div>
         </section>
 
-        {/* MAIN CONTENT CARD */}
+        {/* MAIN CARD */}
         <main style={styles.card}>
-          {/* Small intro strip */}
-          <section style={styles.section}>
-            <h2 style={styles.h2}>Latest Findings (Static Demo)</h2>
-            <p style={styles.pSmall}>
-              This table is static for now (great for learning + UI building).
-              Later we’ll replace <code>FINDINGS</code> with data from FastAPI.
-            </p>
+          <div style={styles.cardHeader}>
+            <div>
+              <h2 style={styles.h2}>Findings Archive</h2>
+              <p style={styles.pSmall}>
+                
+        /** We still need to connect FastAPI <code>GET findings/</code>**/
+
+                /**Also this is just a preview of what the findings archive would like**/
+
+              </p>
+            </div>
+          </div>
+
+          {/* Controls */}
+          <section style={styles.controls}>
+            {/* Search */}
+            <div style={styles.controlBlock}>
+              <label style={styles.label}>Search</label>
+              <input
+                style={styles.input}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by pentester, finding, date, severity..."
+              />
+            </div>
+
+            {/* Year filter */}
+            <div style={styles.controlBlock}>
+              <label style={styles.label}>Year</label>
+              <select
+                style={styles.select}
+                value={yearFilter}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setYearFilter(v === "All" ? "All" : Number(v));
+                }}
+              >
+                <option value="All">All</option>
+                {years.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Severity filter */}
+            <div style={styles.controlBlock}>
+              <label style={styles.label}>Severity</label>
+              <select
+                style={styles.select}
+                value={severityFilter}
+                onChange={(e) => {
+                  const v = e.target.value as Severity | "All";
+                  setSeverityFilter(v);
+                }}
+              >
+                <option value="All">All</option>
+                {SEVERITIES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Reset */}
+            <div style={styles.controlBlock}>
+              <label style={styles.label}>Actions</label>
+              <button
+                style={styles.button}
+                onClick={() => {
+                  setQuery("");
+                  setYearFilter("All");
+                  setSeverityFilter("All");
+                }}
+              >
+                Reset
+              </button>
+            </div>
           </section>
 
-          {/* TABLE: Pentester, Finding, Date + helpful columns */}
+          {/* Table */}
           <section style={styles.tableWrap}>
             <table style={styles.table}>
               <thead>
@@ -188,70 +300,117 @@ export default function Homepage() {
               </thead>
 
               <tbody>
-                {FINDINGS.map((row, idx) => (
-                  <tr key={`${row.pentester}-${row.date}-${idx}`} style={styles.tr}>
+                {filtered.map((row) => (
+                  <tr
+                    key={row.id}
+                    style={styles.trClickable}
+                    onClick={() => setSelected(row)}
+                    title="Click to view details"
+                  >
                     <td style={styles.td}>
                       <div style={styles.cellStrong}>{row.pentester}</div>
                     </td>
-
                     <td style={styles.td}>
                       <div style={styles.cellText}>{row.finding}</div>
                     </td>
-
                     <td style={styles.td}>
                       <div style={styles.cellMono}>{row.date}</div>
                     </td>
-
                     <td style={styles.td}>
-                      <span style={getSeverityBadgeStyle(row.severity)}>{row.severity}</span>
+                      <span style={severityStyle(row.severity)}>{row.severity}</span>
                     </td>
-
                     <td style={styles.td}>
-                      <span style={getStatusBadgeStyle(row.status)}>{row.status}</span>
+                      <span style={statusStyle(row.status)}>{row.status}</span>
                     </td>
                   </tr>
                 ))}
+
+                {filtered.length === 0 && (
+                  <tr>
+                    <td style={styles.td} colSpan={5}>
+                      <span style={{ color: "#94a3b8" }}>No results match your filters.</span>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </section>
 
-          {/* FOOTER NOTE */}
+          {/* About */}
           <section style={styles.section}>
-            <h2 style={styles.h2}>Next UI upgrades (when you’re ready)</h2>
-            <ul style={styles.ul}>
-              <li style={styles.li}>Add a search bar to filter by pentester or finding name</li>
-              <li style={styles.li}>Add year + severity filter buttons</li>
-              <li style={styles.li}>Click a row to open a “Finding Details” panel</li>
-              <li style={styles.li}>Connect to FastAPI: <code>GET /findings</code></li>
-            </ul>
+            <h2 style={styles.h2}>About</h2>
+            <p style={styles.p}>
+              This portal will track findings across time for reporting, trend analysis, and internal learning.
+              We still need to connect this UI to our FastAPI backend and store our findings in Postgres.
+            </p>
           </section>
         </main>
 
-        {/* FOOTER */}
         <footer style={styles.footer}>
           <span>© {new Date().getFullYear()} Maltek Solutions</span>
           <span style={{ color: "#94a3b8" }}> • </span>
           <span>finding.maltek (UI prototype)</span>
         </footer>
       </div>
+
+      {/* DETAILS MODAL (click a row) */}
+      {selected && (
+        <div style={styles.modalOverlay} onClick={() => setSelected(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 900 }}>{selected.finding}</div>
+                <div style={styles.modalMetaRow}>
+                  <span style={styles.badgeOutline}>{selected.pentester}</span>
+                  <span style={styles.badgeOutline}>{selected.date}</span>
+                  <span style={severityStyle(selected.severity)}>{selected.severity}</span>
+                  <span style={statusStyle(selected.status)}>{selected.status}</span>
+                </div>
+              </div>
+              <button style={styles.button} onClick={() => setSelected(null)}>
+                Close
+              </button>
+            </div>
+
+            <div style={styles.modalBody}>
+              <DetailBlock title="Summary" text={selected.summary} />
+              <DetailBlock title="Impact" text={selected.impact} />
+              <DetailBlock title="Recommendation" text={selected.recommendation} />
+
+              {selected.references?.length ? (
+                <div style={{ marginTop: 14 }}>
+                  <div style={styles.detailTitle}>References</div>
+                  <ul style={styles.ul}>
+                    {selected.references.map((r) => (
+                      <li key={r} style={styles.li}>
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-/**
- * styles
- * - Using inline styles so everything stays in one file while you learn.
- * - Later you can move to CSS modules or Tailwind.
- */
+function DetailBlock({ title, text }: { title: string; text: string }) {
+  return (
+    <div style={{ marginTop: 14 }}>
+      <div style={styles.detailTitle}>{title}</div>
+      <div style={styles.detailText}>{text}</div>
+    </div>
+  );
+}
+
+/** ---------- Styles (keep in one file for learning) ---------- */
 const styles: Record<string, any> = {
   colors: {
-    // These approximate Maltek brand tones from your logos
-    accentBlue: "#0ea5e9", // bright blue
-    accentTeal: "#22c1d6", // teal/cyan
-    dark: "#0b1220",
-    panel: "rgba(15, 23, 42, 0.55)",
-    border: "#1f2937",
-    textMuted: "#cbd5e1",
+    accentBlue: "#0ea5e9",
+    accentTeal: "#22c1d6",
   },
 
   page: {
@@ -278,11 +437,8 @@ const styles: Record<string, any> = {
     background: "rgba(15, 23, 42, 0.75)",
   },
 
-  navLeft: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-  },
+  navLeft: { display: "flex", alignItems: "center", gap: 12 },
+  navRight: { display: "flex", alignItems: "center", gap: 10 },
 
   navLogo: {
     width: 40,
@@ -294,25 +450,8 @@ const styles: Record<string, any> = {
     padding: 6,
   },
 
-  navTitle: {
-    fontSize: 18,
-    fontWeight: 900,
-    letterSpacing: 0.2,
-  },
-
-  navSubtitle: {
-    fontSize: 12,
-    color: "#94a3b8",
-    marginTop: 2,
-  },
-
-  navRight: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    flexWrap: "wrap",
-    justifyContent: "flex-end",
-  },
+  navTitle: { fontSize: 18, fontWeight: 900 },
+  navSubtitle: { fontSize: 12, color: "#94a3b8", marginTop: 2 },
 
   navLink: {
     color: "#e5e7eb",
@@ -332,19 +471,8 @@ const styles: Record<string, any> = {
     background: "rgba(15, 23, 42, 0.55)",
   },
 
-  heroBgWrap: {
-    position: "absolute",
-    inset: 0,
-  },
-
-  heroBg: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    opacity: 0.35,
-    filter: "contrast(1.05) saturate(1.1)",
-  },
-
+  heroBgWrap: { position: "absolute", inset: 0 },
+  heroBg: { width: "100%", height: "100%", objectFit: "cover", opacity: 0.35 },
   heroOverlay: {
     position: "absolute",
     inset: 0,
@@ -355,7 +483,7 @@ const styles: Record<string, any> = {
   heroContent: {
     position: "relative",
     display: "grid",
-    gridTemplateColumns: "1.2fr 0.8fr",
+    gridTemplateColumns: "1.25fr 0.75fr",
     gap: 16,
     alignItems: "center",
     padding: 18,
@@ -371,21 +499,28 @@ const styles: Record<string, any> = {
     padding: 10,
   },
 
-  heroChips: {
-    display: "flex",
-    gap: 8,
-    flexWrap: "wrap",
-    marginTop: 10,
+  h1: { margin: 0, fontSize: 28, fontWeight: 950 },
+  h2: { margin: "0 0 8px 0", fontSize: 16, fontWeight: 900 },
+
+  p: { marginTop: 10, lineHeight: 1.6, color: "#cbd5e1" },
+  pSmall: { marginTop: 6, lineHeight: 1.6, color: "#94a3b8", fontSize: 13 },
+
+  kpiRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+    gap: 10,
+    marginTop: 12,
   },
 
-  chip: {
-    fontSize: 12,
-    padding: "6px 10px",
-    borderRadius: 999,
+  kpiCard: {
     border: "1px solid #1f2937",
+    borderRadius: 14,
+    padding: 12,
     background: "rgba(2, 6, 23, 0.35)",
-    color: "#cbd5e1",
   },
+
+  kpiLabel: { fontSize: 12, color: "#94a3b8", fontWeight: 800 },
+  kpiValue: { fontSize: 20, fontWeight: 950, marginTop: 6 },
 
   card: {
     marginTop: 16,
@@ -395,49 +530,56 @@ const styles: Record<string, any> = {
     padding: 18,
   },
 
-  h1: {
-    margin: 0,
-    fontSize: 28,
-    fontWeight: 950,
+  cardHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    alignItems: "flex-start",
   },
 
-  h2: {
-    margin: "0 0 10px 0",
-    fontSize: 16,
-    fontWeight: 900,
+  controls: {
+    marginTop: 12,
+    display: "grid",
+    gridTemplateColumns: "1.4fr 0.6fr 0.6fr 0.4fr",
+    gap: 12,
   },
 
-  p: {
-    marginTop: 10,
-    lineHeight: 1.6,
-    color: "#cbd5e1",
+  controlBlock: { display: "flex", flexDirection: "column", gap: 6 },
+
+  label: { fontSize: 12, color: "#94a3b8", fontWeight: 800 },
+
+  input: {
+    width: "100%",
+    padding: "10px 12px",
+    borderRadius: 12,
+    border: "1px solid #334155",
+    background: "#0b1220",
+    color: "#e5e7eb",
+    outline: "none",
   },
 
-  pSmall: {
-    marginTop: 6,
-    lineHeight: 1.6,
-    color: "#94a3b8",
-    fontSize: 13,
+  select: {
+    width: "100%",
+    padding: "10px 12px",
+    borderRadius: 12,
+    border: "1px solid #334155",
+    background: "#0b1220",
+    color: "#e5e7eb",
+    outline: "none",
   },
 
-  section: {
-    marginTop: 18,
-    paddingTop: 12,
-    borderTop: "1px solid #1f2937",
-  },
-
-  ul: {
-    marginTop: 8,
-    paddingLeft: 18,
-    color: "#cbd5e1",
-  },
-
-  li: {
-    marginTop: 6,
+  button: {
+    padding: "10px 12px",
+    borderRadius: 12,
+    border: "1px solid #334155",
+    background: "transparent",
+    color: "#e5e7eb",
+    cursor: "pointer",
+    height: 42,
   },
 
   tableWrap: {
-    marginTop: 12,
+    marginTop: 14,
     overflowX: "auto",
     borderRadius: 14,
     border: "1px solid #1f2937",
@@ -460,26 +602,18 @@ const styles: Record<string, any> = {
     whiteSpace: "nowrap",
   },
 
-  tr: {
+  td: { padding: "12px 14px", verticalAlign: "top" },
+
+  trClickable: {
     borderBottom: "1px solid #1f2937",
+    cursor: "pointer",
   },
 
-  td: {
-    padding: "12px 14px",
-    verticalAlign: "top",
-  },
-
-  cellStrong: {
-    fontWeight: 800,
-  },
-
-  cellText: {
-    color: "#e5e7eb",
-    lineHeight: 1.4,
-  },
-
+  cellStrong: { fontWeight: 900 },
+  cellText: { color: "#e5e7eb", lineHeight: 1.4 },
   cellMono: {
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+    fontFamily:
+      "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
     fontSize: 12,
     color: "#cbd5e1",
   },
@@ -490,7 +624,7 @@ const styles: Record<string, any> = {
     borderRadius: 999,
     border: "1px solid #334155",
     fontSize: 12,
-    fontWeight: 800,
+    fontWeight: 900,
   },
 
   badgeOutline: {
@@ -499,9 +633,14 @@ const styles: Record<string, any> = {
     borderRadius: 999,
     border: "1px solid #334155",
     fontSize: 12,
-    fontWeight: 800,
+    fontWeight: 900,
     background: "transparent",
   },
+
+  section: { marginTop: 18, paddingTop: 12, borderTop: "1px solid #1f2937" },
+
+  ul: { marginTop: 8, paddingLeft: 18, color: "#cbd5e1" },
+  li: { marginTop: 6 },
 
   footer: {
     marginTop: 16,
@@ -512,4 +651,39 @@ const styles: Record<string, any> = {
     flexWrap: "wrap",
     justifyContent: "center",
   },
+
+  modalOverlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.65)",
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    padding: 18,
+  },
+
+  modal: {
+    width: "min(920px, 100%)",
+    marginTop: 30,
+    border: "1px solid #1f2937",
+    borderRadius: 16,
+    background: "#0b1220",
+    overflow: "hidden",
+  },
+
+  modalHeader: {
+    padding: "12px 14px",
+    borderBottom: "1px solid #1f2937",
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 10,
+    alignItems: "flex-start",
+  },
+
+  modalMetaRow: { display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 },
+
+  modalBody: { padding: 14 },
+
+  detailTitle: { fontSize: 12, color: "#94a3b8", fontWeight: 900, textTransform: "uppercase" },
+  detailText: { marginTop: 6, color: "#e5e7eb", lineHeight: 1.6 },
 };
