@@ -132,7 +132,7 @@ export default function Homepage() {
           {/* Background image (subtle) */}
           <div style={styles.heroBgWrap}>
             <img
-              src="findings/maltek.jpeg"
+              src="/maltek.jpeg"
               alt="Maltek hero background"
               style={styles.heroBg}
             />
@@ -156,7 +156,7 @@ export default function Homepage() {
 
             {/* Right side brand image */}
             <img
-              src="findings/maltek.1.jpeg"
+              src="/maltek.1.jpeg"
               alt="Maltek Solutions wordmark"
               style={styles.heroBrand}
             />
