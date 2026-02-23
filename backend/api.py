@@ -15,11 +15,18 @@ app = FastAPI()
 
 origins = ["*"] # TODO: Do not allow this in prod.
 
+@app.get("/findings")
+def list_findings(session: SessionDependency):
+    findings = session.exec(select(Finding)).all()
+    return findings
+    
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # dev only
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-
 """Database Connection and Model"""
 class Finding(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -78,7 +85,10 @@ async def content(finding_id):
 # TODO: Implement OAuth2 or Other Security for this.
 #       https://fastapi.tiangolo.com/tutorial/security/first-steps/
 #       https://fastapi.tiangolo.com/tutorial/sql-databases/
-@app.post("/findings/")
-async def update_finding(finding: Finding, session: SessionDependency) -> Finding:
-    session.add()
-    pass
+
+@app.post("/findings/", response_model=Finding)
+def create_finding(finding: Finding, session: SessionDependency) -> Finding:
+    session.add(finding)
+    session.commit()
+    session.refresh(finding)
+    return finding
