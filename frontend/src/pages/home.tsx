@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FINDINGS, SEVERITIES, WSTG_CATEGORIES } from "../data/findings";
-import type { Severity, Status, WstgCategory } from "../types";
+import { getFindings } from "../services/api";
+import type { Finding, Severity, Status, WstgCategory } from "../types";
 
 // ─── badge helpers ───────────────────────────────────────────────────────────
 
@@ -43,20 +44,25 @@ function NavBar() {
 // ─── page ────────────────────────────────────────────────────────────────────
 
 export default function Homepage() {
+  const [findings,       setFindings]       = useState<Finding[]>(FINDINGS);
   const [query,          setQuery]          = useState("");
   const [yearFilter,     setYearFilter]     = useState<number | "All">("All");
   const [severityFilter, setSeverityFilter] = useState<Severity | "All">("All");
   const [categoryFilter, setCategoryFilter] = useState<WstgCategory | "All">("All");
 
+  useEffect(() => {
+    getFindings().then(setFindings);
+  }, []);
+
   const years = useMemo(() => {
-    const ys = Array.from(new Set(FINDINGS.map(f => Number(f.date.slice(0, 4)))));
+    const ys = Array.from(new Set(findings.map(f => Number(f.date.slice(0, 4)))));
     ys.sort((a, b) => b - a);
     return ys;
-  }, []);
+  }, [findings]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return FINDINGS.filter((f) => {
+    return findings.filter((f) => {
       const year = Number(f.date.slice(0, 4));
       if (yearFilter     !== "All" && year !== yearFilter)           return false;
       if (severityFilter !== "All" && f.severity !== severityFilter) return false;

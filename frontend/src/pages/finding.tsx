@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { FINDINGS } from "../data/findings";
+import { getFinding } from "../services/api";
 import type { Finding, Severity, Status } from "../types";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -79,7 +81,13 @@ function MetaGrid({ finding }: { finding: Finding }) {
 
 export default function FindingPage() {
   const { id } = useParams<{ id: string }>();
-  const finding = FINDINGS.find((f) => f.id === Number(id));
+  const [finding, setFinding] = useState<Finding | undefined>(
+    FINDINGS.find((f) => f.id === Number(id))
+  );
+
+  useEffect(() => {
+    getFinding(Number(id)).then(setFinding);
+  }, [id]);
 
   if (!finding) {
     return (
