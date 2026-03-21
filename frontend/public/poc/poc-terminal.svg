@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420">
+  <defs>
+    <style>
+      .win-bg { fill: #0d1117; }
+      .titlebar { fill: #161b22; }
+      .titlebar-text { fill: #e6edf3; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; font-weight: 600; }
+      .dot-red   { fill: #f85149; }
+      .dot-yel   { fill: #d29922; }
+      .dot-grn   { fill: #3fb950; }
+      .code { font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 12.5px; }
+      .prompt { fill: #3fb950; }
+      .cmd    { fill: #e6edf3; }
+      .flag   { fill: #79c0ff; }
+      .out    { fill: #8b949e; }
+      .warn   { fill: #d29922; }
+      .vuln   { fill: #f85149; }
+      .ok     { fill: #3fb950; }
+      .redt   { fill: #f85149; font-style: italic; }
+      .dim    { fill: #484f58; }
+      .sep    { stroke: #21262d; stroke-width: 1; }
+      .badge-red { fill: #f85149; }
+      .badge-text { fill: #0d1117; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 10px; font-weight: 800; }
+      .watermark { fill: #21262d; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 10px; }
+    </style>
+  </defs>
+
+  <!-- Window -->
+  <rect width="800" height="420" rx="10" class="win-bg"/>
+  <rect width="800" height="36" rx="10" class="titlebar"/>
+  <rect x="0" y="26" width="800" height="10" class="titlebar"/>
+
+  <!-- Traffic lights -->
+  <circle cx="20" cy="18" r="6" class="dot-red"/>
+  <circle cx="40" cy="18" r="6" class="dot-yel"/>
+  <circle cx="60" cy="18" r="6" class="dot-grn"/>
+
+  <!-- Title -->
+  <text x="400" y="22" text-anchor="middle" class="titlebar-text">Terminal — Security Assessment Tools</text>
+
+  <!-- Divider -->
+  <line x1="0" y1="36" x2="800" y2="36" class="sep"/>
+
+  <!-- SANITIZED badge -->
+  <rect x="12" y="48" width="90" height="18" rx="3" class="badge-red"/>
+  <text x="57" y="61" text-anchor="middle" class="badge-text">SANITIZED</text>
+  <text x="108" y="61" fill="#484f58" font-family="system-ui" font-size="10px">— target, paths, and tool output replaced for this template</text>
+
+  <!-- Command 1 -->
+  <text x="14" y="90" class="code prompt">┌──(assessor㉿kali)-[~]</text>
+  <text x="14" y="108" class="code prompt">└─$ </text>
+  <text x="50" y="108" class="code cmd">retire.js</text>
+  <text x="110" y="108" class="code flag">--path</text>
+  <text x="158" y="108" class="code redt">[TARGET-APP-PATH REDACTED]</text>
+  <text x="370" y="108" class="code flag">--outputformat</text>
+  <text x="488" y="108" class="code cmd">text</text>
+
+  <!-- Tool banner -->
+  <line x1="14" y1="118" x2="786" y2="118" class="sep"/>
+  <text x="14" y="136" class="code dim">retire.js v4.x.x — dependency security scanner</text>
+  <text x="14" y="154" class="code dim">Scanning: </text>
+  <text x="88" y="154" class="code redt">[TARGET-APP-PATH REDACTED]</text>
+
+  <!-- Results -->
+  <line x1="14" y1="166" x2="786" y2="166" class="sep"/>
+  <text x="14" y="184" class="code warn">⚠</text>
+  <text x="30" y="184" class="code out">Scanning JavaScript files...</text>
+
+  <text x="14" y="204" class="code redt">✖ VULNERABLE</text>
+  <text x="120" y="204" class="code cmd">jquery</text>
+  <text x="172" y="204" class="code flag">1.10.2</text>
+  <text x="230" y="204" class="code out">found in:</text>
+  <text x="308" y="204" class="code redt">[PATH REDACTED]/jquery-1.10.2.min.js</text>
+
+  <text x="30" y="224" class="code vuln">  CVE-2020-11022</text>
+  <text x="160" y="224" class="code out">Passing HTML from untrusted sources — XSS (CVSS 6.1)</text>
+
+  <text x="30" y="244" class="code vuln">  CVE-2020-11023</text>
+  <text x="160" y="244" class="code out">Passing HTML containing &#60;option&#62; elements — XSS (CVSS 6.1)</text>
+
+  <text x="30" y="264" class="code vuln">  CVE-2019-11358</text>
+  <text x="160" y="264" class="code out">Prototype pollution via $.extend (CVSS 6.1)</text>
+
+  <!-- Summary -->
+  <line x1="14" y1="278" x2="786" y2="278" class="sep"/>
+  <text x="14" y="296" class="code out">Scan complete.</text>
+  <text x="108" y="296" class="code vuln">3 vulnerabilities found</text>
+  <text x="290" y="296" class="code dim">in 1 component.</text>
+
+  <text x="14" y="316" class="code warn">→ Recommendation:</text>
+  <text x="168" y="316" class="code cmd">Upgrade to jQuery 3.7.x or later</text>
+
+  <!-- Command 2 prompt (idle) -->
+  <line x1="14" y1="330" x2="786" y2="330" class="sep"/>
+  <text x="14" y="348" class="code prompt">┌──(assessor㉿kali)-[~]</text>
+  <text x="14" y="366" class="code prompt">└─$ </text>
+  <text x="50" y="366" class="code dim">▌</text>
+
+  <!-- Footer -->
+  <rect x="0" y="395" width="800" height="25" rx="0" fill="#161b22"/>
+  <rect x="0" y="385" width="800" height="10" fill="#161b22"/>
+  <text x="20" y="411" class="watermark">Exit 0  |  kali@assessment-vm</text>
+  <text x="570" y="411" class="watermark">Replace with actual sanitized screenshot</text>
+</svg>

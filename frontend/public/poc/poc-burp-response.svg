@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420">
+  <defs>
+    <style>
+      .win-bg { fill: #1e1e2e; }
+      .titlebar { fill: #181825; }
+      .titlebar-text { fill: #cdd6f4; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; font-weight: 600; }
+      .dot-red   { fill: #f38ba8; }
+      .dot-yel   { fill: #f9e2af; }
+      .dot-grn   { fill: #a6e3a1; }
+      .tab-active { fill: #a6e3a1; }
+      .tab-text-active { fill: #1e1e2e; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 11px; font-weight: 700; }
+      .code { font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 12.5px; }
+      .status-ok  { fill: #a6e3a1; }
+      .status-err { fill: #f38ba8; }
+      .hdr  { fill: #cdd6f4; }
+      .val  { fill: #89b4fa; }
+      .body-key { fill: #cba6f7; }
+      .body-str { fill: #a6e3a1; }
+      .body-num { fill: #fab387; }
+      .redt { fill: #f38ba8; font-style: italic; }
+      .dim  { fill: #6c7086; }
+      .watermark { fill: #313244; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 10px; }
+      .label-badge-grn { fill: #a6e3a1; }
+      .label-text-grn { fill: #1e1e2e; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 10px; font-weight: 800; }
+    </style>
+  </defs>
+
+  <!-- Window -->
+  <rect width="800" height="420" rx="10" class="win-bg"/>
+  <rect width="800" height="36" rx="10" class="titlebar"/>
+  <rect x="0" y="26" width="800" height="10" class="titlebar"/>
+
+  <!-- Traffic-light buttons -->
+  <circle cx="20" cy="18" r="6" class="dot-red"/>
+  <circle cx="40" cy="18" r="6" class="dot-yel"/>
+  <circle cx="60" cy="18" r="6" class="dot-grn"/>
+
+  <!-- Title -->
+  <text x="400" y="22" text-anchor="middle" class="titlebar-text">Burp Suite Professional — HTTP Response</text>
+
+  <!-- Tab bar -->
+  <rect x="12" y="42" width="130" height="22" rx="4" class="tab-active"/>
+  <text x="77" y="57" text-anchor="middle" class="tab-text-active">Raw</text>
+  <rect x="150" y="42" width="100" height="22" rx="4" fill="#313244"/>
+  <text x="200" y="57" text-anchor="middle" fill="#6c7086" font-family="system-ui" font-size="11px">Rendered</text>
+  <rect x="258" y="42" width="100" height="22" rx="4" fill="#313244"/>
+  <text x="308" y="57" text-anchor="middle" fill="#6c7086" font-family="system-ui" font-size="11px">Hex</text>
+
+  <!-- Divider -->
+  <line x1="12" y1="70" x2="788" y2="70" stroke="#313244" stroke-width="1"/>
+
+  <!-- [SANITIZED] badge -->
+  <rect x="12" y="78" width="90" height="18" rx="3" class="label-badge-grn"/>
+  <text x="57" y="91" text-anchor="middle" class="label-text-grn">SANITIZED</text>
+  <text x="108" y="91" fill="#6c7086" font-family="system-ui" font-size="10px">— response data replaced with representative placeholder</text>
+
+  <!-- Status line -->
+  <text x="20" y="122" class="code hdr">HTTP/1.1 </text>
+  <text x="90" y="122" class="code status-ok">200 OK</text>
+
+  <!-- Response headers -->
+  <text x="20" y="142" class="code hdr">Content-Type:</text>
+  <text x="130" y="142" class="code val">application/json; charset=utf-8</text>
+
+  <text x="20" y="162" class="code hdr">Server:</text>
+  <text x="80" y="162" class="code redt">[SERVER REDACTED]</text>
+
+  <text x="20" y="182" class="code hdr">X-Powered-By:</text>
+  <text x="130" y="182" class="code redt">[FRAMEWORK REDACTED]</text>
+
+  <text x="20" y="202" class="code hdr">Content-Length:</text>
+  <text x="145" y="202" class="code val">847</text>
+
+  <text x="20" y="222" class="code hdr">Cache-Control:</text>
+  <text x="135" y="222" class="code val">no-store, no-cache</text>
+
+  <!-- Blank line -->
+  <line x1="12" y1="238" x2="788" y2="238" stroke="#313244" stroke-width="1" stroke-dasharray="4,3"/>
+  <rect x="12" y="243" width="50" height="16" rx="3" fill="#313244"/>
+  <text x="37" y="255" text-anchor="middle" fill="#6c7086" font-family="system-ui" font-size="10px">BODY</text>
+
+  <!-- JSON response body -->
+  <text x="20" y="280" class="code hdr">{</text>
+  <text x="38" y="300" class="code body-key">"status"</text>
+  <text x="104" y="300" class="code hdr">:</text>
+  <text x="112" y="300" class="code body-str">"success"</text>
+  <text x="178" y="300" class="code hdr">,</text>
+  <text x="38" y="320" class="code body-key">"results"</text>
+  <text x="112" y="320" class="code hdr">:</text>
+  <text x="122" y="320" class="code body-num">[...all records returned — injection confirmed...]</text>
+  <text x="38" y="340" class="code body-key">"count"</text>
+  <text x="102" y="340" class="code hdr">:</text>
+  <text x="112" y="340" class="code body-num">2847</text>
+  <text x="160" y="340" class="code dim">  ← full table exposed</text>
+  <text x="38" y="360" class="code body-key">"db_version"</text>
+  <text x="130" y="360" class="code hdr">:</text>
+  <text x="140" y="360" class="code body-str">"[DB VERSION REDACTED]"</text>
+  <text x="20" y="380" class="code hdr">}</text>
+
+  <!-- Footer -->
+  <rect x="0" y="395" width="800" height="25" rx="0" fill="#181825"/>
+  <rect x="0" y="385" width="800" height="10" fill="#181825"/>
+  <text x="20" y="411" class="watermark">847 bytes  |  JSON</text>
+  <text x="600" y="411" class="watermark">Replace with actual sanitized screenshot</text>
+</svg>
