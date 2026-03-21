@@ -275,7 +275,7 @@ const S: Record<string, any> = {
     color: "#e5e7eb",
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial",
   },
-  container: { maxWidth: 1100, margin: "0 auto", padding: "24px 16px" },
+  container: { maxWidth: 1400, margin: "0 auto", padding: "24px 24px" },
 
   navbar: {
     display: "flex", justifyContent: "space-between", alignItems: "center",

@@ -260,9 +260,9 @@ const S: Record<string, React.CSSProperties> = {
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial",
   },
   container: {
-    maxWidth: 1000,
+    maxWidth: 1400,
     margin: "0 auto",
-    padding: "24px 16px 40px",
+    padding: "24px 24px 40px",
   },
 
   // Navbar
