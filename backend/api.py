@@ -27,11 +27,17 @@ def _build_db_url() -> str:
         # SQLAlchemy 1.4+ requires postgresql:// not postgres://
         return url.replace("postgres://", "postgresql://", 1)
     # Fallback for local dev (.env file)
-    host     = os.getenv("DB_HOST", "127.0.0.1")
+    host     = os.getenv("DB_HOST", "")
     port     = os.getenv("DB_PORT", "5432")
     user     = os.getenv("DB_USER", "postgres")
     password = os.getenv("DB_PASSWORD", "")
     name     = os.getenv("DB_NAME", "findings")
+    if not host:
+        raise RuntimeError(
+            "No database configured. "
+            "Set DATABASE_URL (Railway: link the Postgres plugin to this service under Variables → Add Reference) "
+            "or set DB_HOST/DB_USER/DB_PASSWORD/DB_NAME for local dev."
+        )
     return f"postgresql://{user}:{password}@{host}:{port}/{name}"
 
 
