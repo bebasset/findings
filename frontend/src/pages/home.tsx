@@ -73,7 +73,7 @@ export default function Homepage() {
       }
       return true;
     });
-  }, [query, yearFilter, severityFilter, categoryFilter]);
+  }, [findings, query, yearFilter, severityFilter, categoryFilter]);
 
   const kpis = useMemo(() => {
     const counts: Record<Severity, number> = { Critical: 0, High: 0, Medium: 0, Low: 0, Info: 0 };
