@@ -57,11 +57,8 @@ class Finding(SQLModel, table=True):
     __tablename__ = "findings"
 
     id:                  Optional[int] = Field(default=None, primary_key=True)
-    pentester:           str           = Field(index=True)
     title:               str           = Field(index=True)
-    date:                str                                      # YYYY-MM-DD
     severity:            str                                      # Critical/High/Medium/Low/Info
-    status:              str                                      # Open/Fixed/Accepted Risk
     wstg_id:             str           = Field(index=True)        # e.g. WSTG-INPV-05
     wstg_category:       str
     cwe_id:              Optional[int] = None
@@ -81,11 +78,8 @@ class Finding(SQLModel, table=True):
 
 class FindingCreate(SQLModel):
     """Payload for POST /findings/"""
-    pentester:           str
     title:               str
-    date:                str
     severity:            str
-    status:              str
     wstg_id:             str
     wstg_category:       str
     cwe_id:              Optional[int] = None
@@ -104,11 +98,8 @@ class FindingCreate(SQLModel):
 def to_dict(f: Finding) -> dict:
     return {
         "id":                 f.id,
-        "pentester":          f.pentester,
         "title":              f.title,
-        "date":               f.date,
         "severity":           f.severity,
-        "status":             f.status,
         "wstgId":             f.wstg_id,
         "wstgCategory":       f.wstg_category,
         "cweId":              f.cwe_id,

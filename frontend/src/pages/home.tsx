@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FINDINGS, SEVERITIES, WSTG_CATEGORIES } from "../data/findings";
 import { getFindings } from "../services/api";
-import type { Finding, Severity, Status, WstgCategory } from "../types";
+import type { Finding, Severity, WstgCategory } from "../types";
 
 // ─── badge helpers ───────────────────────────────────────────────────────────
 
@@ -14,14 +14,6 @@ function severityStyle(sev: Severity): React.CSSProperties {
     case "Medium":   return { ...base, background: "#facc15", borderColor: "#facc15", color: "#0b1220" };
     case "Low":      return { ...base, background: "#22c55e", borderColor: "#22c55e", color: "#0b1220" };
     default:         return { ...base, background: "#94a3b8", borderColor: "#94a3b8", color: "#0b1220" };
-  }
-}
-
-function statusStyle(status: Status): React.CSSProperties {
-  switch (status) {
-    case "Fixed":         return { ...S.badgeOutline, borderColor: "#22c1d6", color: "#22c1d6" };
-    case "Accepted Risk": return { ...S.badgeOutline, borderColor: "#94a3b8", color: "#94a3b8" };
-    default:              return { ...S.badgeOutline, borderColor: "#0ea5e9", color: "#0ea5e9" };
   }
 }
 
@@ -46,7 +38,6 @@ function NavBar() {
 export default function Homepage() {
   const [findings,       setFindings]       = useState<Finding[]>(FINDINGS);
   const [query,          setQuery]          = useState("");
-  const [yearFilter,     setYearFilter]     = useState<number | "All">("All");
   const [severityFilter, setSeverityFilter] = useState<Severity | "All">("All");
   const [categoryFilter, setCategoryFilter] = useState<WstgCategory | "All">("All");
 
@@ -54,26 +45,18 @@ export default function Homepage() {
     getFindings().then(setFindings);
   }, []);
 
-  const years = useMemo(() => {
-    const ys = Array.from(new Set(findings.map(f => Number(f.date.slice(0, 4)))));
-    ys.sort((a, b) => b - a);
-    return ys;
-  }, [findings]);
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return findings.filter((f) => {
-      const year = Number(f.date.slice(0, 4));
-      if (yearFilter     !== "All" && year !== yearFilter)           return false;
       if (severityFilter !== "All" && f.severity !== severityFilter) return false;
       if (categoryFilter !== "All" && f.wstgCategory !== categoryFilter) return false;
       if (q.length > 0) {
-        const haystack = `${f.pentester} ${f.title} ${f.severity} ${f.status} ${f.date} ${f.wstgId} ${f.wstgCategory}`.toLowerCase();
+        const haystack = `${f.title} ${f.severity} ${f.wstgId} ${f.wstgCategory}`.toLowerCase();
         if (!haystack.includes(q)) return false;
       }
       return true;
     });
-  }, [findings, query, yearFilter, severityFilter, categoryFilter]);
+  }, [findings, query, severityFilter, categoryFilter]);
 
   const kpis = useMemo(() => {
     const counts: Record<Severity, number> = { Critical: 0, High: 0, Medium: 0, Low: 0, Info: 0 };
@@ -83,7 +66,6 @@ export default function Homepage() {
 
   function reset() {
     setQuery("");
-    setYearFilter("All");
     setSeverityFilter("All");
     setCategoryFilter("All");
   }
@@ -140,7 +122,7 @@ export default function Homepage() {
                 style={S.input}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by title, pentester, WSTG ID, severity…"
+                placeholder="Search by title, WSTG ID, severity…"
               />
             </div>
 
@@ -173,23 +155,6 @@ export default function Homepage() {
             </div>
 
             <div style={S.controlBlock}>
-              <label style={S.label}>Year</label>
-              <select
-                style={S.select}
-                value={yearFilter}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setYearFilter(v === "All" ? "All" : Number(v));
-                }}
-              >
-                <option value="All">All</option>
-                {years.map((y) => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </select>
-            </div>
-
-            <div style={S.controlBlock}>
               <label style={S.label}>Actions</label>
               <button style={S.button} onClick={reset}>Reset</button>
             </div>
@@ -200,18 +165,15 @@ export default function Homepage() {
             <table style={S.table}>
               <thead>
                 <tr>
-                  <th style={S.th}>Pentester</th>
                   <th style={S.th}>Finding</th>
                   <th style={S.th}>WSTG ID</th>
-                  <th style={S.th}>Date</th>
+                  <th style={S.th}>Classification</th>
                   <th style={S.th}>Severity</th>
-                  <th style={S.th}>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((row) => (
                   <tr key={row.id} style={S.trClickable}>
-                    <td style={S.td}><div style={S.cellStrong}>{row.pentester}</div></td>
                     <td style={S.td}>
                       <Link to={`/finding/${row.id}`} style={S.findingLink}>
                         {row.title}
@@ -222,15 +184,14 @@ export default function Homepage() {
                         {row.wstgId}
                       </Link>
                     </td>
-                    <td style={S.td}><div style={S.cellMono}>{row.date}</div></td>
+                    <td style={S.td}><div style={S.cellMono}>{row.wstgCategory}</div></td>
                     <td style={S.td}><span style={severityStyle(row.severity)}>{row.severity}</span></td>
-                    <td style={S.td}><span style={statusStyle(row.status)}>{row.status}</span></td>
                   </tr>
                 ))}
 
                 {filtered.length === 0 && (
                   <tr>
-                    <td style={S.td} colSpan={6}>
+                    <td style={S.td} colSpan={4}>
                       <span style={{ color: "#94a3b8" }}>No findings match the current filters.</span>
                     </td>
                   </tr>
@@ -328,7 +289,7 @@ const S: Record<string, any> = {
   controls: {
     marginTop: 12,
     display: "grid",
-    gridTemplateColumns: "1.2fr 1fr 0.55fr 0.45fr 0.3fr",
+    gridTemplateColumns: "1.4fr 1fr 0.55fr 0.3fr",
     gap: 12,
   },
   controlBlock: { display: "flex", flexDirection: "column", gap: 6 },

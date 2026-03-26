@@ -1,5 +1,4 @@
 export type Severity = "Critical" | "High" | "Medium" | "Low" | "Info";
-export type Status = "Open" | "Fixed" | "Accepted Risk";
 
 export type WstgCategory =
   | "Information Gathering"
@@ -26,11 +25,8 @@ export type Reference = {
 
 export type Finding = {
   id: number;
-  pentester: string;
   title: string;
-  date: string;              // YYYY-MM-DD
   severity: Severity;
-  status: Status;
   wstgId: string;            // e.g. "WSTG-INPV-05"
   wstgCategory: WstgCategory;
   cweId?: number;

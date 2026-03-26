@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { FINDINGS } from "../data/findings";
 import { getFinding } from "../services/api";
-import type { Finding, Severity, Status } from "../types";
+import type { Finding, Severity } from "../types";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -19,14 +19,6 @@ function severityColors(sev: Severity) {
 function severityBadge(sev: Severity) {
   const c = severityColors(sev);
   return { ...S.badge, background: c.bg, borderColor: c.bg, color: c.text };
-}
-
-function statusBadge(status: Status) {
-  switch (status) {
-    case "Fixed":         return { ...S.badgeOutline, borderColor: "#22c1d6", color: "#22c1d6" };
-    case "Accepted Risk": return { ...S.badgeOutline, borderColor: "#94a3b8", color: "#94a3b8" };
-    default:              return { ...S.badgeOutline, borderColor: "#0ea5e9", color: "#0ea5e9" };
-  }
 }
 
 // ─── section wrapper ─────────────────────────────────────────────────────────
@@ -55,14 +47,11 @@ function Section({
 
 function MetaGrid({ finding }: { finding: Finding }) {
   const cells: [string, React.ReactNode][] = [
-    ["Pentester", finding.pentester],
-    ["Date Identified", finding.date],
     ["WSTG Reference", <code style={S.mono}>{finding.wstgId}</code>],
     ["WSTG Category", finding.wstgCategory],
     ...(finding.cweId ? [["CWE", <a href={`https://cwe.mitre.org/data/definitions/${finding.cweId}.html`} target="_blank" rel="noopener noreferrer" style={S.link}>CWE-{finding.cweId}</a>] as [string, React.ReactNode]] : []),
     ...(finding.cvss ? [["CVSS Score", <code style={{ ...S.mono, color: "#f97316" }}>{finding.cvss}</code>] as [string, React.ReactNode]] : []),
     ...(finding.affectedComponent ? [["Affected Component", <code style={S.mono}>{finding.affectedComponent}</code>] as [string, React.ReactNode]] : []),
-    ["Status", <span style={statusBadge(finding.status)}>{finding.status}</span>],
   ];
 
   return (
@@ -126,7 +115,6 @@ export default function FindingPage() {
           <div style={S.headerTop}>
             <div style={S.headerBadges}>
               <span style={severityBadge(finding.severity)}>{finding.severity}</span>
-              <span style={statusBadge(finding.status)}>{finding.status}</span>
               <span style={S.wstgPill}>{finding.wstgId}</span>
               {finding.cweId && (
                 <span style={S.cwePill}>CWE-{finding.cweId}</span>

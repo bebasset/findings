@@ -6,11 +6,8 @@ export const FINDINGS: Finding[] = [
   // ─────────────────────────────────────────────────────────
   {
     id: 1,
-    pentester: "Belizaire Bassette II",
     title: "SQL Injection via Search Parameter",
-    date: "2026-02-05",
     severity: "Critical",
-    status: "Open",
     wstgId: "WSTG-INPV-05",
     wstgCategory: "Input Validation",
     cweId: 89,
@@ -61,11 +58,8 @@ export const FINDINGS: Finding[] = [
   // ─────────────────────────────────────────────────────────
   {
     id: 2,
-    pentester: "Graham O'Donnell",
     title: "Stored Cross-Site Scripting (XSS) in Notes Field",
-    date: "2026-02-10",
     severity: "High",
-    status: "Open",
     wstgId: "WSTG-INPV-02",
     wstgCategory: "Input Validation",
     cweId: 79,
@@ -118,11 +112,8 @@ export const FINDINGS: Finding[] = [
   // ─────────────────────────────────────────────────────────
   {
     id: 3,
-    pentester: "Graham O'Donnell",
     title: "IDOR: Arbitrary PDF Access via Predictable Identifier",
-    date: "2026-02-19",
     severity: "High",
-    status: "Open",
     wstgId: "WSTG-ATHZ-01",
     wstgCategory: "Authorization Testing",
     cweId: 639,
@@ -172,11 +163,8 @@ export const FINDINGS: Finding[] = [
   // ─────────────────────────────────────────────────────────
   {
     id: 4,
-    pentester: "Belizaire Bassette II",
     title: "Session Token Not Invalidated on Server-Side Logout",
-    date: "2026-02-12",
     severity: "High",
-    status: "Open",
     wstgId: "WSTG-SESS-06",
     wstgCategory: "Session Management",
     cweId: 613,
@@ -227,11 +215,8 @@ export const FINDINGS: Finding[] = [
   // ─────────────────────────────────────────────────────────
   {
     id: 5,
-    pentester: "Belizaire Bassette II",
     title: "Missing HTTP Security Headers (CSP / HSTS / X-Frame-Options)",
-    date: "2026-02-18",
     severity: "Low",
-    status: "Open",
     wstgId: "WSTG-CONF-07",
     wstgCategory: "Configuration & Deployment Management",
     cweId: 693,
@@ -280,11 +265,8 @@ export const FINDINGS: Finding[] = [
   // ─────────────────────────────────────────────────────────
   {
     id: 6,
-    pentester: "Mike Lisi",
     title: "Insufficient Password Complexity Requirements",
-    date: "2026-02-14",
     severity: "Medium",
-    status: "Open",
     wstgId: "WSTG-ATHN-07",
     wstgCategory: "Authentication Testing",
     cweId: 521,
@@ -336,11 +318,8 @@ export const FINDINGS: Finding[] = [
   // ─────────────────────────────────────────────────────────
   {
     id: 7,
-    pentester: "Belizaire Bassette II",
     title: "Stack Trace Disclosure via Registration Error (Information Leakage)",
-    date: "2026-02-03",
     severity: "Medium",
-    status: "Open",
     wstgId: "WSTG-ERRH-01",
     wstgCategory: "Error Handling",
     cweId: 209,
@@ -386,11 +365,8 @@ export const FINDINGS: Finding[] = [
   // ─────────────────────────────────────────────────────────
   {
     id: 8,
-    pentester: "Mike Lisi",
     title: "Outdated JavaScript Library (jQuery 1.10.2) with Known CVEs",
-    date: "2026-02-20",
     severity: "Medium",
-    status: "Fixed",
     wstgId: "WSTG-CONF-01",
     wstgCategory: "Configuration & Deployment Management",
     cweId: 1104,
